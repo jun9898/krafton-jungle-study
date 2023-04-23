@@ -41,8 +41,7 @@ while True:
             myPocket += coin
             print(f'{myPocket} in my poket')
 
-    if order == 3:
-        break
+    if order == 3: break
 
     if Americano == 0 and Latte == 0:
         print("재료 소진")    
