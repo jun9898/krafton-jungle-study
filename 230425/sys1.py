@@ -1,8 +1,12 @@
-import sys
+print((1<2) and (2<3))
+print((1>2) or (2<3))
+print((1>2) and (2>3))
+print(not(1>2) or (2>3))
 
-result = 0
-args = sys.argv[1:]
-for i in args:
-    result += int(i)
-    
-print(result)
+n = int(input())
+print ('ho' * n)
+
+print(1+2)
+print('asdf', 3)
+print('asdf'*3)
+print('hi' +5)
