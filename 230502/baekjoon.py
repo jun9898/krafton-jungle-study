@@ -122,7 +122,8 @@
 # print(time)
 
 
-while True:
-    print(input())
+while True: print(input())
+a = "python"
+print(a)
 
 
