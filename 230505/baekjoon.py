@@ -1,59 +1,44 @@
-# croatia = ['c=', 'c-', 'dz=', 'd-', 'lj', 'nj', 's=', 'z=']
-# word = input()
+# score = {'A+' : 4.5, 'A0' : 4.0, 'B+' : 3.5, 'B0' : 3.0, 'C+' : 2.5, 'C0' : 2.0  , 'D+' : 1.5, 'D0' : 1.0, 'F' : 0}
 
-# for i in croatia:
-#     word = word.replace(i, "*")
-# print(len(word))
+# addScore = 0
+# allScore = 0
 
-# count = int(input())
-# gWordList = []
-# countGword = 0
-# word = 0
-
-# for i in range(count):
-#     gWord = input()
-#     gWordList.append(gWord)
-
-# for i in gWordList:
-#     gWordCount = []
-#     error = 0
-#     for j in i:
-#         if j not in gWordCount:
-#             gWordCount.append(j)
-#         else:
-#             j.count(gWordCount) > 0
-#             error += 1
-#     if error == 0:
-#         word +=1
-
-# print(word)   문제풀이 실패 해설보고 비교
-
-# n = int(input())
-
-# groupWord = 0
-# for i in range(n):
-#     word = input()
-#     error = 0
-#     for j in range(len(word)-1):
-#         if word[j] != word[j+1]:
-#             newWord = word[j+1:]
-#             if newWord.count(word[j]) > 0:
-#                 error += 1
-#     if error == 0:
-#         groupWord += 1
-
-# N = int(input())
-# result = []
-# for _ in range(N):
-#     str = input()
-#     Flag = True
+# for i in range(20):
+#     x, y, z = input().split()
+#     if z != 'P':
+#         addScore += float(y)
+#         allScore += float(y) * score[z]
     
-#     stack = []
-#     for i in str:
-#         if i not in stack or i == stack[-1]:
-#             stack.append(i)
-#         else:
-#             Flag = False
-        
-#     result.append(Flag)
-# print(result.count(True))
+# print('%.6f' % (allScore/addScore))
+
+# N ,M = int(input().split())
+# for i in range(N):
+#     x, y, z = int(input().split())
+
+# n, m = map(int,input().split())
+# x = [list(map(int, input().split())) for i in range(n)]
+# y = [list(map(int, input().split())) for i in range(n)]
+
+# for i in range(n):
+#     for j in range(m):
+#         x[i][j] += y[i][j]
+
+# for i in x:
+#     print(*i)
+
+maxNum = 0
+maxRow, maxCol = 0, 0
+
+table = [list(map(int, input().split())) for i in range(9)]
+
+for y in range(9):
+    for x in range(9):
+        if maxNum <= table[y][x]:
+            maxRow = x+1
+            maxCol = y+1
+            maxNum = table[y][x]
+
+print(maxNum)
+print(maxCol, maxRow)
+
+
