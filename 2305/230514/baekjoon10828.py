@@ -1,3 +1,4 @@
+
 # 이거 하면 빨라지는건 아는데 왜 하는지 모르겠슴
 import sys
 input=sys.stdin.readline
