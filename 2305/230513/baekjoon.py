@@ -9,3 +9,4 @@ try:    #리스트에 추가된 값에 index - 1을 출력한다
     print(numList[index-1])
 except:  #만약 index의 값이 numList의 인덱스 값에 포함되지 않을시 0을 출력한다.
     print(0)
+
