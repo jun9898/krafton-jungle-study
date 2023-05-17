@@ -1,3 +1,5 @@
+# 오답 이유 : 시간초과
+
 import sys
 input = sys.stdin.readline
 # 배열의 갯수
