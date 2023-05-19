@@ -38,3 +38,6 @@ for i in range(len(listResult)-1):
     print(listResult[i], end=", ")
 print(str(listResult[len(listResult)-1])+ ">")
 
+# 문제 제출 후 다른사람의 풀이를 보니
+print(str(listResult).replace('[' , '<').replace(']', '>'))
+# 이 방법도 있는것같다.
