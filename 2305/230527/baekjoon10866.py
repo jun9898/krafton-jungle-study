@@ -40,3 +40,4 @@ for i in range(n):
             print(result[-1])
 
 # 기본적인 deque문제
+
