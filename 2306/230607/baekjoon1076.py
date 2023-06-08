@@ -1,17 +1,46 @@
-color = ['black', 'brown', 'red', 'orange', 'yellow','green','blue','violet','grey','white']
-number = ['0','1','2','3','4','5','6','7','8','9']
-zeroCount = ['','0','00','000','0000','00000','000000','0000000','00000000','000000000']
 
-inputColor = input()
-inputColor2 = input()
-inputColor3 = input()
-result = ''
+import sys
+input=sys.stdin.readline
 
-firstnum = color.index(inputColor)
-result += number[firstnum]
-secondnum = color.index(inputColor2)
-result += number[secondnum]
-thirdnum = color.index(inputColor3)
-result += zeroCount[thirdnum]
 
-print(int(result))
+def check(arr):
+    n=len(arr)
+    answer=1
+    for i in range(n):
+        cnt=1
+        for j in range(1, n):
+            if arr[i][j] == arr[i][j-1]:
+                cnt += 1
+            else:
+                cnt=1
+            if cnt > answer:
+                answer = cnt
+        cnt=1
+        for j in range(1, n):
+            if arr[j][i] == arr[j-1][i]:
+                cnt += 1
+            else:
+                cnt=1
+            if cnt > answer:
+                answer = cnt
+    return answer
+
+n=int(input())
+arr=[list(input()) for _ in range(n)]
+answer=0
+
+for i in range(n):
+    for j in range(n):
+        if j+1 < n:
+            arr[i][j], arr[i][j+1] = arr[i][j+1], arr[i][j]
+            temp=check(arr)
+            if temp > answer:
+                answer = temp
+            arr[i][j], arr[i][j+1] = arr[i][j+1], arr[i][j]
+        if i+1 < n:
+            arr[i][j], arr[i+1][j] = arr[i+1][j], arr[i][j]
+            temp=check(arr)
+            if temp > answer:
+                answer = temp
+            arr[i][j], arr[i+1][j] = arr[i+1][j], arr[i][j]
+print(answer)
