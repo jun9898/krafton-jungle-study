@@ -32,8 +32,9 @@ def heap_sort(arr):
 
     return arr
 
-# 사용 예시
-arr = [12, 11, 13, 5, 6, 7]
+n = int(input())
+arr = [int(input()) for _ in range(n)]
 sorted_arr = heap_sort(arr)
-print("정렬된 배열:", sorted_arr)
+for i in sorted_arr:
+    print(i)
 
