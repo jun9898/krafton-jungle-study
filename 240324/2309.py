@@ -46,7 +46,7 @@ subsets = find_subsets(nums, target)
 for i in range(len(subsets)//2 - 1, -1, -1):
     heapify(subsets, i, len(subsets))
 
-for i in range(len(subsets)-1, -1, -1):
+for i in range(len(subsets)-1, 0, -1):
     subsets[0], subsets[i] = subsets[i], subsets[0]
     print(subsets.pop(-1))
     heapify(subsets, 0, i)
