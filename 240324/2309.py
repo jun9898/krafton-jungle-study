@@ -1,4 +1,4 @@
-# 파이썬 백트레킹 힙정렬 온몸비틀기
+#파이썬 백트레킹 온몸비틀기
 import sys
 input = sys.stdin.readline
 
@@ -10,12 +10,13 @@ def find_subsets(nums, target):
     return result
 
 def dfs(elements, target, path, result):
+    if len(path) > 7:
+        return False  # 합이 타겟을 넘으면 해당 조합은 유효하지 않으므로 False 반환
+    if sum(path) > target:
+        return False  # 합이 타겟을 넘으면 해당 조합은 유효하지 않으므로 False 반환
     if sum(path) == target and len(path) == 7:
         result.extend(path[:])  # 결과에 현재 경로 추가
         return True  # 원하는 조합을 찾았으므로 True 반환
-
-    if sum(path) > target:
-        return False  # 합이 타겟을 넘으면 해당 조합은 유효하지 않으므로 False 반환
 
     for i, element in enumerate(elements):
         # 재귀 호출하여 다음 요소를 추가한 경우
@@ -46,7 +47,8 @@ subsets = find_subsets(nums, target)
 for i in range(len(subsets)//2 - 1, -1, -1):
     heapify(subsets, i, len(subsets))
 
-for i in range(len(subsets)-1, 0, -1):
+for i in range(len(subsets)-1, -1, -1):
     subsets[0], subsets[i] = subsets[i], subsets[0]
     print(subsets.pop(-1))
     heapify(subsets, 0, i)
+
