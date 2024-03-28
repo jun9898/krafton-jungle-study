@@ -4,7 +4,6 @@ input = sys.stdin.readline
 
 # 1 = 강수량 1 ~ n+1
 # 전체 탐색 시작
-result = 0
 def search_safe(result, max_value):
     for i in range(0, max_value + 1):
         visited = set()
@@ -36,7 +35,7 @@ def dfs(i, x, y, visited):
         dfs(i, x, y + 1, visited)
     return 1
 
-
+result = 0
 n = int(input())
 arr = list(list(map(int, input().split())) for _ in range(n))
 max_value = max(max(row) for row in arr)
