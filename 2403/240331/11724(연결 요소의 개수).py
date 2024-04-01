@@ -5,7 +5,7 @@ from collections import deque
 input = sys.stdin.readline
 
 
-def search_connected(graph, res):
+def search_connected(res):
     total_visited_vertex[0] = 1
     while sum(total_visited_vertex)-1 != vertex:
         # 방문처리 되지 않은 노드로부터 탐색 시작
