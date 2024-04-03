@@ -1,35 +1,51 @@
 import sys
+import math
 import heapq
+
 input = sys.stdin.readline
-N = int(input())
-INF = 2147000000
-board = [list(map(int,input().rstrip())) for _ in range(N)]
-ch_board = [[INF]*N for _ in range(N)]
 
-dx = [-1,0,1,0]
-dy = [0,-1,0,1]
+direction_x = [1, -1, 0, 0]
+direction_y = [0, 0, 1, -1]
 
-# ✨ 다익스트라
-def dj(d,x,y):
-    hq = []
-    heapq.heappush(hq,(d,x,y))
-    ch_board[x][y] = d
-    while hq:
-        dd,xx,yy = heapq.heappop(hq)
-        if xx == N-1 and yy == N-1:
-            print(dd)
-            break
+
+def make_graph(n):
+    graph = [[] for _ in range(n)]
+    for i in range(n):
+        row = input().rstrip()
+        for j in row:
+            graph[i].append(int(j))
+    return graph
+
+
+def dijkstar(cost = 0, y = 0, x = 0, visited = set()):
+    # 값을 저장할 보드 추가
+    check_cost_board = [[math.inf] * n for _ in range(n)]
+    check_cost_board[0][0] = 0
+    # 우선순위 큐 선언
+    pq = []
+    heapq.heappush(pq, (cost, y, x))
+    while pq:
+        cost, y, x = heapq.heappop(pq)
+        visited.add((y,x))
+        if y == n - 1 and x == n - 1:
+            return cost
         for i in range(4):
-            nx = xx + dx[i]
-            ny = yy + dy[i]
-            if 0<=nx<N and 0<=ny<N and ch_board[nx][ny]> dd+1:
-                if board[nx][ny] == 0:
-                    ch_board[nx][ny] = min(ch_board[nx][ny],dd+1)
-                else:
-                    ch_board[nx][ny] = min(ch_board[nx][ny],dd)
-                heapq.heappush(hq,(ch_board[nx][ny],nx,ny))
-                for j in ch_board:
-                    print(j)
-                print("===============================")
+            nx = x + direction_x[i]
+            ny = y + direction_y[i]
+            if (ny, nx) in visited:
+                continue
+            if 0 <= nx < n and 0 <= ny < n and check_cost_board[ny][nx] > cost + 1:
+                if graph[ny][nx] == 0:
+                    check_cost_board[ny][nx] = cost+1
+                    heapq.heappush(pq, (check_cost_board[ny][nx], ny, nx))
+                elif graph[ny][nx] == 1:
+                    check_cost_board[ny][nx] = cost
+                    heapq.heappush(pq, (check_cost_board[ny][nx], ny, nx))
 
-dj(0,0,0)
+
+n = int(input())
+graph = make_graph(n)
+print(dijkstar())
+
+
+

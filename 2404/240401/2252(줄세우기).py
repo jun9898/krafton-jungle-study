@@ -22,6 +22,7 @@ def topological_sort():
     while queue:
         current_node = queue.popleft()
         result.append(current_node)
+        print(in_degree)
 
         for i in graph[current_node]:
             in_degree[i] -= 1

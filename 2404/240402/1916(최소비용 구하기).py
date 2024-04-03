@@ -14,6 +14,7 @@ def make_graph(vertices, edges):
 
     return graph
 
+
 def dijkstra(graph, start_vertex):
     queue = []
     # 거리를 저장할 리스트 선언
