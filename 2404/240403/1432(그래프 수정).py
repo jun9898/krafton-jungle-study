@@ -1,7 +1,4 @@
 import heapq
-import sys
-from collections import deque
-
 
 # 위상정렬 후 정렬된 결과값 반환
 def topological_sort():
