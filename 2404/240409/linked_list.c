@@ -12,6 +12,22 @@ typedef struct NODE{
 
 node* list;
 
+// 초기화
+void init() {
+    if (list == NULL) {
+        return;
+    } else {
+        node* cur;
+        cur = list;
+
+        while (cur != NULL) {
+            list = cur -> next;
+            free(cur);
+            cur = list;
+        }
+    }
+}
+
 // append_left 방식
 void add(int key) {
     node *new_node;
@@ -109,38 +125,47 @@ bool remove_node(int key) {
     }
 }
 
-int main(void) {
-//    단순히 값을 추가
-//    add(10);
-//    add(20);
-//    add(30);
-//    add(40);
-//    add(50);
-//    add(60);
-
-//    오름차순으로 값을 추가
-//    ascending_order_add(50);
-//    ascending_order_add(20);
-//    ascending_order_add(30);
-//    ascending_order_add(10);
-//    ascending_order_add(90);
-//    ascending_order_add(70);
-
-//    unique key값만 추가
-//    add_unique(10);
-//    add_unique(10);
-//    add_unique(10);
-//    add_unique(10);
-//    add_unique(10);
-//    add_unique(10);
-//    add_unique(10);
-//    add_unique(10);
-//    add_unique(10);
-
-    node* curr = list;
-    while(curr != NULL) {
-        printf("%d\n", curr->data);
-        curr = curr->next;
+void traverse() {
+    node* cur = list;
+    while (cur != NULL) {
+        printf("%d ", cur->data);
+        cur = cur -> next;
     }
+    printf("\n");
+}
+
+int main(void) {
+
+    int arr[9] = {2,4,1,2,6,7,8,3,6};
+    int arr_duplicated[18] = { 2,2,1,1,6,2,8,7,6,4,2,5,6,3,7,8,3,9};
+    int arr_rmv[4] = {2,9,8,100};
+
+    init();
+    for (int i = 0; i < sizeof(arr) / sizeof(arr[0]); ++i) {
+        add(arr[i]);
+    }
+    printf("After add(nomal) : ");
+    traverse();
+
+    init();
+    for (int i = 0; i < sizeof(arr) / sizeof(arr[0]); ++i) {
+        ascending_order_add(arr[i]);
+    }
+    printf("After add(ascending) : ");
+    traverse();
+
+    init();
+    for (int i = 0; i < sizeof(arr_duplicated) / sizeof(arr_duplicated[0]); ++i) {
+        add_unique(arr_duplicated[i]);
+    }
+    printf("After add(unique) : ");
+    traverse();
+
+    for (int i = 0; i < sizeof(arr_rmv) / sizeof(arr_rmv[0]); ++i) {
+        remove_node(arr_rmv[i]);
+    }
+    printf("After remove : ");
+    traverse();
+
     return 0;
 }
