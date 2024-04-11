@@ -36,12 +36,7 @@ int removeNode(LinkedList *ll, int index);
 
 //////////////////////////// main() //////////////////////////////////////////////
 
-int main()
-{
-	LinkedList ll;
-	int c, i, j;
-	c = 1;
-
+int main() { LinkedList ll; int c, i, j; c = 1;
 	//Initialize the linked list 1 as an empty linked list
 	ll.head = NULL;
 	ll.size = 0;
@@ -90,7 +85,45 @@ int main()
 
 int insertSortedLL(LinkedList *ll, int item)
 {
-	/* add your code here */
+	// 리턴할 인덱스
+	int index = 0;
+	// 노드 생성 및 데이터 초기화
+	ListNode *new_node;
+	new_node = (ListNode *) malloc(sizeof(ListNode));
+	new_node -> item = item;
+	new_node -> next = NULL;
+
+	// 만약 리스트가 비어있으면 노드를 리스트 첫번째에 추가
+	if (ll -> head == NULL) {
+		ll -> head = new_node;
+	} else {
+		ListNode* cur = ll -> head; // 탐색을 위한 포인터
+		ListNode* prev = NULL; 
+
+		if (cur -> item > new_node -> item) {
+			new_node -> next = cur;
+			ll -> head = new_node;
+		} else {
+			while (cur != NULL && cur -> item < new_node -> item) {
+				prev = cur;
+				cur = cur -> next;
+				index += 1;
+			}
+			if (cur != NULL && cur -> item != new_node -> item) {
+				new_node -> next = cur;
+				prev -> next = new_node;
+				return 1;
+			} else if (cur == NULL) {
+				prev -> next = new_node;
+				return 1;
+			} else if (cur -> item == new_node -> item) {
+				free(new_node);
+				return -1;
+			}
+		}
+	}
+
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
