@@ -66,7 +66,6 @@ int main() { LinkedList ll; int c, i, j; c = 1;
 		case 3:
 			printf("The resulting sorted linked list is: ");
 			printList(&ll);
-			removeAllItems(&ll);
 			break;
 		case 0:
 			removeAllItems(&ll);
@@ -75,8 +74,6 @@ int main() { LinkedList ll; int c, i, j; c = 1;
 			printf("Choice unknown;\n");
 			break;
 		}
-
-
 	}
 	return 0;
 }
@@ -112,10 +109,10 @@ int insertSortedLL(LinkedList *ll, int item)
 			if (cur != NULL && cur -> item != new_node -> item) {
 				new_node -> next = cur;
 				prev -> next = new_node;
-				return 1;
+				return index;
 			} else if (cur == NULL) {
 				prev -> next = new_node;
-				return 1;
+				return index;
 			} else if (cur -> item == new_node -> item) {
 				free(new_node);
 				return -1;
