@@ -84,10 +84,53 @@ int main()
 
 //////////////////////////////////////////////////////////////////////////////////
 
+
 void moveOddItemsToBack(LinkedList *ll)
 {
-	/* add your code here */
+    // 빈 리스트이거나 리스트에 노드가 하나만 있는 경우
+    if (ll->head == NULL || ll->head->next == NULL)
+    {
+        return;
+    }
+
+    ListNode *cur = ll->head;
+    ListNode *before = NULL;
+    ListNode *odd_head = NULL;
+    ListNode *odd_tail = NULL;
+
+    while (cur != NULL) {
+        if (cur->item % 2 != 0) {
+            ListNode* odd = cur;
+            if (before != NULL) {
+                before->next = cur->next;
+            } else {
+                ll->head = cur->next;
+            }
+
+            cur = cur->next;
+            odd->next = NULL;
+
+            if (odd_head == NULL) {
+                odd_head = odd_tail = odd;
+            } else {
+                odd_tail->next = odd;
+                odd_tail = odd;
+            }
+        } else {
+            before = cur;
+            cur = cur->next;
+        }
+    }
+
+    if (odd_head != NULL) {
+        if (ll->head == NULL) {
+            ll->head = odd_head;
+        } else {
+            before->next = odd_head;
+        }
+    }
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 

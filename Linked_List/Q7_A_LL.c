@@ -87,7 +87,22 @@ int main()
 
 void RecursiveReverse(ListNode **ptrHead)
 {
-	/* add your code here */
+	printList(*ptrHead);
+	if (*ptrHead == NULL || (*ptrHead)->next == NULL) {
+		return;
+	}
+	ListNode* cur = *ptrHead;
+	ListNode* next = cur->next;
+
+	// 최소단위로 나누기
+	RecursiveReverse(&next);
+
+	cur -> next -> next = cur;
+
+	cur -> next = NULL;
+	*ptrHead = next;
+	printList(*ptrHead);
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////
