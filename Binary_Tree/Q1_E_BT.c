@@ -117,7 +117,7 @@ int identical(BTNode *tree1, BTNode *tree2)
 {
     // 두개의 트리가 모두 비어있으면
     if (tree1 == NULL && tree2 == NULL) {
-        return 1;
+        return -1;
     } 
     // 두개의 트리중 하나만 비어있으면
     if (tree1 == NULL || tree2 == NULL) {
