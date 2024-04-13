@@ -91,11 +91,52 @@ int main()
 
 //////////////////////////////////////////////////////////////////////////////////
 
+// 실패 
+// void levelOrderTraversal(BSTNode* root)
+// {
+// 	// 초기화
+// 	Queue *queue;
+// 	queue->head = queue->tail = NULL;
+// 	enqueue(queue->head, queue->tail, root);
+
+
+// 	while (!isEmpty(queue->head)) {
+// 		BSTNode *node = dequeue(queue->head, queue->tail);
+// 		printf("%d ",node->item);
+// 		if (node->left != NULL) {
+// 			enqueue(queue->head, queue->tail, node->left);
+// 		}
+// 		if (node->right != NULL) {
+// 			enqueue(queue->head, queue->tail, node->right);
+// 		}
+// 	}
+// }
+
+
 void levelOrderTraversal(BSTNode* root)
 {
+    if (root == NULL) {
+        return;
+    }
 
-    /* add your code here */
+    // 큐 초기화
+    Queue queue;
+    queue.head = queue.tail = NULL;
+    enqueue(&queue.head, &queue.tail, root);
+
+    while (!isEmpty(queue.head)) {
+        BSTNode *node = dequeue(&queue.head, &queue.tail);
+        printf("%d ", node->item);
+
+        if (node->left != NULL) {
+            enqueue(&queue.head, &queue.tail, node->left);
+        }
+        if (node->right != NULL) {
+            enqueue(&queue.head, &queue.tail, node->right);
+        }
+    }
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
