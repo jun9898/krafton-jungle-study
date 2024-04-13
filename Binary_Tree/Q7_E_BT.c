@@ -110,11 +110,11 @@ int smallestValue(BTNode *node)
     int right = smallestValue(node->right);
 
     if (cur <= left && cur <= right)
-           return cur;
-       else if (left <= cur && left <= right)
-           return left;
-       else
-           return right;
+        return cur;
+    else if (left <= cur && left <= right)
+        return left;
+    else
+        return right;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
