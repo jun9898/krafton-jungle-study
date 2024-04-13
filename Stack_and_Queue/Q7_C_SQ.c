@@ -104,7 +104,34 @@ int main()
 ////////////////////////////////////////////////////////////
 int balanced(char *expression)
 {
-/* add your code here */
+	// 비어있는 stack 생성
+	Stack s;
+	s.ll.head = NULL;
+	s.ll.size = 0;
+
+	while (*expression) {
+		char cur = *expression;
+		if (cur == '(' || cur == '[' || cur == '{') {
+			push(&s, cur);
+		// 만약 닫는 문자열인데 stack에 아무런 값이 없으면
+		} else if (cur == ')' || cur == ']' || cur == '}') {
+			if (isEmptyStack(&s)) {
+				return 1;
+			}
+			char pair = pop(&s);
+			if (
+				(cur == ')' && pair != '(') ||
+				(cur == '}' && pair != '{') ||
+				(cur == ']' && pair != '[')) {
+				return 1;
+			}
+		}
+		expression++;
+	}
+	if (!isEmptyStack(&s)) {
+		return 1;
+	}
+	return 0;
 }
 
 ////////////////////////////////////////////////////////////
