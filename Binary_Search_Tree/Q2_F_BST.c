@@ -88,14 +88,33 @@ int main()
 
 //////////////////////////////////////////////////////////////////////////////////
 
+
+// 단순재귀 어쩐지 너무 쉽더라
+// void inOrderTraversal(BSTNode *root)
+// {
+// 	if (root == NULL) {
+// 		return;
+// 	}
+// 	inOrderTraversal(root->left);
+// 	printf("%d ", root->item);
+// 	inOrderTraversal(root->right);
+// }
+
+
 void inOrderTraversal(BSTNode *root)
 {
-	if (root == NULL) {
-		return;
-	}
-	inOrderTraversal(root->left);
-	printf("%d ", root->item);
-	inOrderTraversal(root->right);
+	// 메모리 할당
+	Stack *s = (Stack*) malloc(sizeof(Stack));
+    if (s == NULL) {
+        printf("Stack allocation failed\n");
+        return;
+    }
+	// 스택 초기화
+	s->top = NULL;
+	
+
+
+	free(s);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
