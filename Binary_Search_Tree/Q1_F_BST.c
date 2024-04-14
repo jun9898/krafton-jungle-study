@@ -120,21 +120,26 @@ void levelOrderTraversal(BSTNode* root)
     }
 
     // 큐 초기화
-    Queue queue;
-    queue.head = queue.tail = NULL;
-    enqueue(&queue.head, &queue.tail, root);
+	Queue *queue = (Queue *) malloc(sizeof(Queue));
+    if (queue == NULL) {
+        printf("Memory allocation failed\n");
+        return;
+    }
+	queue->head = queue->tail = NULL;
+	enqueue(&queue->head, &queue->tail, root);
 
-    while (!isEmpty(queue.head)) {
-        BSTNode *node = dequeue(&queue.head, &queue.tail);
+    while (!isEmpty(queue->head)) {
+        BSTNode *node = dequeue(&queue->head, &queue->tail);
         printf("%d ", node->item);
 
         if (node->left != NULL) {
-            enqueue(&queue.head, &queue.tail, node->left);
+            enqueue(&queue->head, &queue->tail, node->left);
         }
         if (node->right != NULL) {
-            enqueue(&queue.head, &queue.tail, node->right);
+            enqueue(&queue->head, &queue->tail, node->right);
         }
     }
+	free(queue);
 }
 
 
