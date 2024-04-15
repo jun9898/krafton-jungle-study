@@ -100,9 +100,12 @@ int main()
 // 	inOrderTraversal(root->right);
 // }
 
-
 void inOrderTraversal(BSTNode *root)
 {
+	if (root == NULL) {
+		return;
+	}
+
 	// 메모리 할당
 	Stack *s = (Stack*) malloc(sizeof(Stack));
     if (s == NULL) {
@@ -111,10 +114,24 @@ void inOrderTraversal(BSTNode *root)
     }
 	// 스택 초기화
 	s->top = NULL;
-	
 
+	BSTNode *cur = root;
+	BSTNode *tmp = NULL;
 
-	free(s);
+	while(1) {
+		if (cur != NULL) {
+			push(s, cur);
+			cur = cur->left;
+		} else {
+			if (s->top == NULL) {
+				free(s);
+				return;
+			}
+			tmp = pop(s);
+			printf("%d ", tmp->item);
+			cur = tmp->right;
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
