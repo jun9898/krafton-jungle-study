@@ -89,14 +89,40 @@ int main()
 
 //////////////////////////////////////////////////////////////////////////////////
 
-void postOrderIterativeS1(BSTNode *root)
-{
-	if (root == NULL) {
+// void postOrderIterativeS1(BSTNode *root)
+// {
+// 	if (root == NULL) {
+// 		return;
+// 	}
+// 	postOrderIterativeS1(root->left);
+// 	postOrderIterativeS1(root->right);
+// 	printf("%d ", root->item);
+// }
+
+void makeStack(Stack *s, BSTNode *cur) {
+	if (cur == NULL) {
 		return;
 	}
-	postOrderIterativeS1(root->left);
-	postOrderIterativeS1(root->right);
-	printf("%d ", root->item);
+	push(s, cur);
+	makeStack(s, cur->right);
+	makeStack(s, cur->left);
+}
+
+void postOrderIterativeS1(BSTNode *root)
+{
+	// 메모리 할당
+	Stack *s = (Stack *) malloc(sizeof(Stack));
+	if (s == NULL) {
+		printf("Stack allocation failed\n");
+		return;
+	}
+	s->top = NULL;
+
+	makeStack(s, root);
+	while(s->top != NULL) {
+		printf("%d ", pop(s)->item);
+	}
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////

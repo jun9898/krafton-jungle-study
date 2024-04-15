@@ -128,6 +128,7 @@ void preOrderIterative(BSTNode *root)
 		tmp = pop(s);
 		printf("%d ", tmp->item);
 	}
+	free(s);
 
 }
 
