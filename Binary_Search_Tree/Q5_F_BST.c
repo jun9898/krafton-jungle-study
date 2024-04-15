@@ -54,12 +54,13 @@ int main()
 
 	printf("1: Insert an integer into the binary search tree;\n");
 	printf("2: Print the post-order traversal of the binary search tree;\n");
+	printf("3: Print the remove node from tree;\n");
 	printf("0: Quit;\n");
 
 
 	while (c != 0)
 	{
-		printf("Please input your choice(1/2/0): ");
+		printf("Please input your choice(1/2/3/0): ");
 		scanf("%d", &c);
 
 		switch (c)
@@ -73,6 +74,11 @@ int main()
 			printf("The resulting post-order traversal of the binary search tree is: ");
 			postOrderIterativeS2(root); // You need to code this function
 			printf("\n");
+			break;
+		case 3:
+			printf("Input an integer that you want to delete into the Binary Search Tree: ");
+			scanf("%d", &i);
+			postOrderIterativeS2(root); // You need to code this function
 			break;
 		case 0:
 			removeAll(&root);
@@ -115,14 +121,61 @@ void postOrderIterativeS2(BSTNode *root)
 	while (s2->top != NULL) {
 		printf("%d ", pop(s2)->item);
 	}
+
+	free(s1);
+	free(s2);
 }
 
-/* Given a binary search tree and a key, this function
-   deletes the key and returns the new root. Make recursive function. */
+BSTNode* findMinValue(BSTNode* node) {
+    BSTNode* curr = node;
+    while (curr->left != NULL) {
+        curr = curr->left;
+    }
+    return curr;
+}
+
 BSTNode* removeNodeFromTree(BSTNode *root, int value)
 {
-	/* add your code here */
+    /* add your code here */
+    // 1. 트리가 비어있다면 NULL 반환
+    if (root == NULL)
+        return NULL;
+    // 2. 삭제할 노드 탐색 (재귀)
+    if (value < root->item) {
+        root->left = removeNodeFromTree(root->left, value);
+    }
+    else if (value > root->item) {
+        root->right = removeNodeFromTree(root->right, value);
+    }
+    // 3. 삭제할 노드 찾았으면,
+    else {
+        // 3-1. 삭제할 노드의 자식이 없으면 걍 삭제 ㄱ
+        if (root->left == NULL && root->right == NULL) {
+            free(root);
+            return NULL;
+        }
+        // 3-2. 삭제할 노드의 자식이 1개면?? 맞나??
+        else if (root->left == NULL) {
+            BSTNode* tmp = root->right;
+            free(root);
+            return tmp;
+        }
+        else if (root->right == NULL) {
+            BSTNode* tmp = root->left;
+            free(root);
+            return tmp;
+        }
+        // 3-3. 삭제할 노드의 자식이 2개면,
+        else {
+            // 오른쪽 최솟값 올리고
+            BSTNode* tmp = findMinValue(root->right);
+            root->item = tmp->item;     // 값 갱신
+            root->right = removeNodeFromTree(root->right, tmp->item);   // 오른쪽에서 재귀적으로 삭제 작업
+        }
+    }
+    return root;
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void insertBSTNode(BSTNode **node, int value){
