@@ -88,10 +88,33 @@ int main()
 }
 
 //////////////////////////////////////////////////////////////////////////////////
+void makeStack(Stack *s, BSTNode *cur) {
+	if (cur == NULL) {
+		return;
+	}
+	makeStack(s, cur->left);
+	makeStack(s, cur->right);
+	push(s, cur);
+}
 
 void postOrderIterativeS2(BSTNode *root)
 {
-	 /* add your code here */
+	// use two stack
+	Stack *s1 = (Stack *) malloc(sizeof(Stack));
+	Stack *s2 = (Stack *) malloc(sizeof(Stack));
+
+	s1->top = NULL;
+	s2->top = NULL;
+
+	makeStack(s1, root);
+
+	while (s1->top != NULL) {
+		push(s2, pop(s1));
+	}
+
+	while (s2->top != NULL) {
+		printf("%d ", pop(s2)->item);
+	}
 }
 
 /* Given a binary search tree and a key, this function
