@@ -89,15 +89,49 @@ int main()
 
 //////////////////////////////////////////////////////////////////////////////////
 
+// 단순 재귀
+// void preOrderIterative(BSTNode *root)
+// {
+// 	if (root == NULL) {
+// 		return;
+// 	}
+// 	printf("%d ", root->item);
+// 	preOrderIterative(root->left);
+// 	preOrderIterative(root->right);
+// }
+
+void makeStack(Stack *s, BSTNode *cur) {
+	if (cur == NULL) {
+		return;
+	}
+	makeStack(s, cur->right);
+	makeStack(s, cur->left);
+	push(s, cur);
+}
+
 void preOrderIterative(BSTNode *root)
 {
 	if (root == NULL) {
 		return;
 	}
-	printf("%d ", root->item);
-	preOrderIterative(root->left);
-	preOrderIterative(root->right);
+
+	Stack *s = (Stack*) malloc(sizeof(Stack));
+	if (s == NULL) {
+        printf("Stack allocation failed\n");
+        return;
+	}
+	s->top = NULL;
+
+	makeStack(s, root);
+	BSTNode *tmp = NULL;
+	while (s->top != NULL) {
+		tmp = pop(s);
+		printf("%d ", tmp->item);
+	}
+
 }
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
