@@ -13,16 +13,3 @@ int main(int argc, char *argv[])
     rbtree_to_print(t->root, t->nil);
     return 0;
 }
-
-void rbtree_to_print(node_t *t, node_t *nil)
-{
-    // TODO: implement to_print
-    if (t == nil)
-    {
-        printf("노드 바닥이에용\n");
-        return;
-    }
-    printf("t.print %d\n", t->key);
-    rbtree_to_print(t->left, nil);
-    rbtree_to_print(t->right, nil);
-}

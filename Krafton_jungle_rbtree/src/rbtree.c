@@ -129,28 +129,22 @@ void rbtree_insert_fixup(rbtree *t, node_t *new_node)
 			new_node->parent->parent->color = RBTREE_RED;
 			right_rotate(t, new_node->parent->parent);
 		}
-		// 만약 부모 노드가 할아버지 노드 기준 오른쪽에 있을때
 		else
 		{
 			node_t *uncle_node = new_node->parent->parent->left;
-			// 만약 RB트리 부모와 삼촌 노드가 모두 RED일때 쭈왑
 			if (uncle_node->color == RBTREE_RED)
 			{
 				new_node->parent->color = RBTREE_BLACK;
 				new_node->parent->parent->color = RBTREE_RED;
 				uncle_node->color = RBTREE_BLACK;
 				new_node = new_node->parent->parent;
-				// 바꿨으면 다시 반복문 초기화
 				continue;
-				// 만약 다른색이고 할아버지 노드와 부모 노드가 꺾여있다면
 			}
 			else if (new_node == new_node->parent->left)
 			{
 				new_node = new_node->parent;
-				// 펴주기
 				right_rotate(t, new_node);
 			}
-			// 색 바꾸고 전환
 			new_node->parent->color = RBTREE_BLACK;
 			new_node->parent->parent->color = RBTREE_RED;
 			left_rotate(t, new_node->parent->parent);
@@ -267,19 +261,19 @@ node_t *rbtree_max(const rbtree *t)
 	return res_node;
 }
 
-void rb_transplant(rbtree *t, node_t *target_node, node_t *substitute_node){
+void rb_transplant(rbtree *t, node_t *u, node_t *v){
     // 만약 삭제 노드가 root면
-    if (target_node->parent == t->nil) {
-        t->root = substitute_node;
+    if (u->parent == t->nil) {
+        t->root = v;
     // 부모기준 왼쪽이면
-    } else if (target_node == target_node->parent->left) {
-        target_node->parent->left = substitute_node;
+    } else if (u == u->parent->left) {
+        u->parent->left = v;
     // 부모기준 오른쪽이면
     } else {
-        target_node->parent->right = substitute_node;
+        u->parent->right = v;
     }
     // 양방향 매핑
-    substitute_node->parent = target_node->parent;
+    v->parent = u->parent;
     // 최종 삭제는 밖에서
 }
 
@@ -291,126 +285,122 @@ node_t * find_successor(node_t *cur_node, node_t *nil) {
     return cur_node;
 }
 
-void rbtree_erase_fixup(rbtree *t, node_t *cur_node) {
-    while (cur_node != t->root && cur_node->color == RBTREE_BLACK) {
+void rbtree_erase_fixup(rbtree *t, node_t *x) {
+    while (x != t->root && x->color == RBTREE_BLACK) {
         // 대체 노드가 왼쪽에 있을때
-        if (cur_node == cur_node->parent->left) {
-            node_t *uncle_node = cur_node->parent->right;
+        if (x == x->parent->left) {
+            node_t *w = x->parent->right;
             // 삼촌 노드의 색이 빨강일 경우 부모와 삼촌 노드의 색을 바꾸고 왼쪽으로 rotate
-            if (uncle_node->color == RBTREE_RED) {
-                uncle_node->color = RBTREE_BLACK;
-                cur_node->parent->color = RBTREE_RED;
-                left_rotate(t, cur_node->parent);
+            if (w->color == RBTREE_RED) {
+                w->color = RBTREE_BLACK;
+                x->parent->color = RBTREE_RED;
+                left_rotate(t, x->parent);
                 // 회전 후 삼촌 노드의 위치를 재조정
-                uncle_node = cur_node->parent->right;
+                w = x->parent->right;
             }
-            if (uncle_node->left->color == RBTREE_BLACK && uncle_node->right->color == RBTREE_BLACK) {
-                uncle_node->color = RBTREE_RED;
-                cur_node = cur_node->parent;
+            if (w->left->color == RBTREE_BLACK && w->right->color == RBTREE_BLACK) {
+                w->color = RBTREE_RED;
+                x = x->parent;
             // 만약 왼쪽 red 오른쪽 black이면
             } else {
-                if (uncle_node->right->color == RBTREE_BLACK) {
+                if (w->right->color == RBTREE_BLACK) {
                     // 색 변경
-                    uncle_node->left->color = RBTREE_BLACK;
-                    uncle_node->color = RBTREE_RED;
+                    w->left->color = RBTREE_BLACK;
+                    w->color = RBTREE_RED;
                     // 돌리고 오른 자식이 red가 되게끔 만든다.
-                    right_rotate(t, uncle_node);
-                    uncle_node = cur_node->parent->right;
+                    right_rotate(t, w);
+                    w = x->parent->right;
                 }
                 // 최종적으로 오른쪽 자식이 red일때 작업을 수행 "깜부깜"
-                uncle_node->color = cur_node->parent->color;
-                cur_node->parent->color = RBTREE_BLACK;
-                uncle_node->right->color = RBTREE_BLACK;
-                left_rotate(t, cur_node->parent);
+                w->color = x->parent->color;
+                x->parent->color = RBTREE_BLACK;
+                w->right->color = RBTREE_BLACK;
+                left_rotate(t, x->parent);
                 // 깜깜부가 수행되면 사실상 노드의 정렬이 끝났다고 봐도 무방함
-                cur_node = t->root;
+                x = t->root;
             }   
         // 대체 노드가 오른쪽에 있을때 -> 정반대
         } else {
-            node_t *uncle_node = cur_node->parent->left;
-            // 삼촌 노드의 색이 빨강일 경우 부모와 삼촌 노드의 색을 바꾸고 오른쪽으로 rotate
-            if (uncle_node->color == RBTREE_RED) {
-                uncle_node->color = RBTREE_BLACK;
-                cur_node->parent->color = RBTREE_RED;
-                right_rotate(t, cur_node->parent);
+            node_t *w = x->parent->left;
+            // 삼촌 노드의 색이 빨강일 경우 부모와 삼촌 노드의 색을 바꾸고 왼쪽으로 rotate
+            if (w->color == RBTREE_RED) {
+                w->color = RBTREE_BLACK;
+                x->parent->color = RBTREE_RED;
+                right_rotate(t, x->parent);
                 // 회전 후 삼촌 노드의 위치를 재조정
-                uncle_node = cur_node->parent->left;
+                w = x->parent->left;
             }
-            if (uncle_node->left->color == RBTREE_BLACK && uncle_node->right->color == RBTREE_BLACK) {
-                uncle_node->color = RBTREE_RED;
-                cur_node = cur_node->parent;
+            if (w->left->color == RBTREE_BLACK && w->right->color == RBTREE_BLACK) {
+                w->color = RBTREE_RED;
+                x = x->parent;
             // 만약 왼쪽 red 오른쪽 black이면
             } else {
-                if (uncle_node->left->color == RBTREE_BLACK) {
+                if (w->left->color == RBTREE_BLACK) {
                     // 색 변경
-                    uncle_node->right->color = RBTREE_BLACK;
-                    uncle_node->color = RBTREE_RED;
+                    w->right->color = RBTREE_BLACK;
+                    w->color = RBTREE_RED;
                     // 돌리고 오른 자식이 red가 되게끔 만든다.
-                    left_rotate(t, uncle_node);
-                    uncle_node = cur_node->parent->left;
+                    left_rotate(t, w);
+                    w = x->parent->left;
                 }
                 // 최종적으로 오른쪽 자식이 red일때 작업을 수행 "깜부깜"
-                uncle_node->color = cur_node->parent->color;
-                cur_node->parent->color = RBTREE_BLACK;
-                uncle_node->left->color = RBTREE_BLACK;
-                right_rotate(t, cur_node->parent);
+                w->color = x->parent->color;
+                x->parent->color = RBTREE_BLACK;
+                w->left->color = RBTREE_BLACK;
+                right_rotate(t, x->parent);
                 // 깜깜부가 수행되면 사실상 노드의 정렬이 끝났다고 봐도 무방함
-                cur_node = t->root;
+                x = t->root;
             }   
         }
     }
     // 트리는 무조건 black
-    printf("삭제 후 정렬된 트리\n");
-    t->root->color = RBTREE_BLACK;
-    rbtree_to_print(t->root, t->nil);
-    // rbtree_to_print(t->root, t->nil);
+    x->color = RBTREE_BLACK;
 }
 
-
-int rbtree_erase(rbtree *t, node_t *target_node)
+int rbtree_erase(rbtree *t, node_t *z)
 {
+    node_t *y = z;
     // 최초 target node 색깔 저장
-    color_t target_original_color = target_node->color;
+    color_t y_original_color = y->color;
     // 대체 노드 초기화
-    node_t *tmp_node = target_node;
-    node_t *substitute_node;
+    node_t *x;
     // 자식이 하나만 있는 경우
-    if (target_node->left == t->nil) {
-        substitute_node = target_node->right;
-        rb_transplant(t, target_node, target_node->right);
-    } else if (target_node->right == t->nil) {
-        substitute_node = target_node->left;
-        rb_transplant(t, target_node, target_node->left);
+    if (z->left == t->nil) {
+        x = z->right;
+        rb_transplant(t, z, z->right);
+    } else if (z->right == t->nil) {
+        x = z->left;
+        rb_transplant(t, z, z->left);
     } else {
         // 후임자 탐색
-        substitute_node = find_successor(target_node, t->nil);
-        target_original_color = tmp_node->color;
+        y = find_successor(z, t->nil);
+        y_original_color = y->color;
         // 한번밖에 안들어가면 대체할 노드는 그대로
-        substitute_node = tmp_node->right;
+        x = y->right;
         // 만약 edge가 내려갔으면
-        if (tmp_node->parent == target_node) {
-            substitute_node->parent = tmp_node;
+        if (y->parent == z) {
+            x->parent = y;
         } else {
             // 후임자의 오른쪽을 기존 후임자 노드 위치로 이동
-            rb_transplant(t, tmp_node, tmp_node->right);
+            rb_transplant(t, y, y->right);
             // 후임자와 target node의 위치를 swap할 준비
-            tmp_node->right = target_node->right;
-            tmp_node->right->parent = tmp_node;
+            y->right = z->right;
+            y->right->parent = y;
         }
         // target node와 후임자의 노드를 swap
-        rb_transplant(t, target_node, tmp_node);
+        rb_transplant(t, z, y);
         // target의 속성을 물려받음
-        tmp_node->left = target_node->left;
-        tmp_node->left->parent = tmp_node;
-        tmp_node->color = target_node->color;
+        y->left = z->left;
+        y->left->parent = y;
+        y->color = z->color;
     }
     // 자유
-    free(target_node);
+    free(z);
     
     // 대참사 발생
-    if (target_original_color == RBTREE_BLACK) {
+    if (y_original_color == RBTREE_BLACK) {
         // 대체 노드부터 fixup
-        rbtree_erase_fixup(t, substitute_node);
+        rbtree_erase_fixup(t, x);
     }
 	return 0;
 }
