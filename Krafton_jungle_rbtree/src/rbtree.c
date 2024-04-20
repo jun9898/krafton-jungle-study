@@ -217,20 +217,27 @@ node_t *rbtree_find(const rbtree *t, const key_t key)
     return NULL;
 }
 
-node_t * smallest_value(node_t *cur_node, node_t *nil)
+node_t *smallest_value(node_t *cur_node, node_t *nil)
 {
     if (cur_node == nil) {
-        return cur_node;
+        return nil;
     }
     node_t *left_node = smallest_value(cur_node->left, nil);
     node_t *right_node = smallest_value(cur_node->right, nil);
 
-    if (cur_node->key <= left_node->key && cur_node->key <= right_node->key)
+    if (left_node == nil && right_node == nil) {
         return cur_node;
-    else if (left_node->key <= cur_node->key && left_node->key <= right_node->key)
-        return left_node;
-    else
-        return right_node;
+    }
+
+    node_t *smallest = cur_node;
+    if (left_node != nil && left_node->key < smallest->key) {
+        smallest = left_node;
+    }
+    if (right_node != nil && right_node->key < smallest->key) {
+        smallest = right_node;
+    }
+
+    return smallest;
 }
 
 node_t * greatest_value(node_t *cur_node, node_t *nil)
