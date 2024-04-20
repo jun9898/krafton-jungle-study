@@ -201,24 +201,26 @@ node_t *rbtree_insert(rbtree *t, const key_t key)
 	return t->root;
 }
 
-node_t *rbtree_find(const rbtree *t, const key_t key) 
+node_t *rbtree_find(const rbtree *t, const key_t key)
 {
-	node_t *cur_node = t->root;
-	while (cur_node->key != key && cur_node != t->nil)
-	{
-		if (key < cur_node->key)
-		{
-			cur_node = cur_node->left;
-		}
-		else
-		{
-			cur_node = cur_node->right;
-		}
-	}
-	if (cur_node == t->nil) {
-		return NULL;
-	}
-	return cur_node;
+    // TODO: implement find
+    node_t *cur = t->root;
+    while (cur != t->nil)
+    {
+        if (cur->key == key)
+        {
+            return cur;
+        }
+        else if (cur->key < key)
+        {
+            cur = cur->right;
+        }
+        else
+        {
+            cur = cur->left;
+        }
+    }
+    return NULL;
 }
 
 node_t * smallest_value(node_t *cur_node, node_t *nil)
@@ -370,6 +372,7 @@ int rbtree_erase(rbtree *t, node_t *target_node)
     // 최초 target node 색깔 저장
     color_t target_original_color = target_node->color;
     // 대체 노드 초기화
+    node_t *tmp_node = target_node;
     node_t *substitute_node;
     // 자식이 하나만 있는 경우
     if (target_node->left == t->nil) {
@@ -380,29 +383,28 @@ int rbtree_erase(rbtree *t, node_t *target_node)
         rb_transplant(t, target_node, target_node->left);
     } else {
         // 후임자 탐색
-        node_t *successor_node = find_successor(target_node, t->nil);
-        target_original_color = successor_node->color;
+        substitute_node = find_successor(target_node, t->nil);
+        target_original_color = tmp_node->color;
         // 한번밖에 안들어가면 대체할 노드는 그대로
-        substitute_node = successor_node->right;
-        // substitute_node = substitute_node;
-        printf("substitute_node => %d\n", substitute_node->key);
+        substitute_node = tmp_node->right;
         // 만약 edge가 내려갔으면
-        if (successor_node->parent != target_node) {
+        if (tmp_node->parent == target_node) {
+            substitute_node->parent = tmp_node;
+        } else {
             // 후임자의 오른쪽을 기존 후임자 노드 위치로 이동
-            rb_transplant(t, successor_node, successor_node->right);
+            rb_transplant(t, tmp_node, tmp_node->right);
             // 후임자와 target node의 위치를 swap할 준비
-            successor_node->right = target_node->right;
-            successor_node->right->parent = successor_node;
+            tmp_node->right = target_node->right;
+            tmp_node->right->parent = tmp_node;
         }
         // target node와 후임자의 노드를 swap
-        rb_transplant(t, target_node, successor_node);
+        rb_transplant(t, target_node, tmp_node);
         // target의 속성을 물려받음
-        successor_node->left = target_node->left;
-        successor_node->left->parent = successor_node;
-        successor_node->color = target_node->color;
+        tmp_node->left = target_node->left;
+        tmp_node->left->parent = tmp_node;
+        tmp_node->color = target_node->color;
     }
     // 자유
-    printf("=============삭제 -> %d ==============\n", target_node->key);
     free(target_node);
     
     // 대참사 발생
