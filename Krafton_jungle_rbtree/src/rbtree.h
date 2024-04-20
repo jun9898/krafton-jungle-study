@@ -21,6 +21,7 @@ typedef struct {
 rbtree *new_rbtree(void);		// 트리 생성
 void delete_rbtree(rbtree *);	// 할당된 메모리 해제
 
+void rbtree_to_print(node_t *t, node_t *nil);       // 트리 프린트
 node_t *rbtree_insert(rbtree *, const key_t);		// 노드 삽입
 node_t *rbtree_find(const rbtree *, const key_t);	// 노드 찾기
 node_t *rbtree_min(const rbtree *);					// 트리의 최솟값 찾기
