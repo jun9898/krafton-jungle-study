@@ -118,6 +118,7 @@ void test_minmax(key_t *arr, const size_t n)
 
     qsort((void *)arr, n, sizeof(key_t), comp);
     node_t *p = rbtree_min(t);
+    printf("key num ====== %d\n", p->key);
     assert(p != NULL);
     assert(p->key == arr[0]);
 
@@ -349,14 +350,12 @@ void test_to_array_suite()
 
 void test_find_erase(rbtree *t, const key_t *arr, const size_t n)
 {
-    printf("========================================\n");
     for (int i = 0; i < n; i++)
     {
         node_t *p = rbtree_insert(t, arr[i]);
         assert(p != NULL);
     }
 
-    printf("========================================\n");
     for (int i = 0; i < n; i++)
     {
         node_t *p = rbtree_find(t, arr[i]);
@@ -366,7 +365,6 @@ void test_find_erase(rbtree *t, const key_t *arr, const size_t n)
         rbtree_erase(t, p);
     }
 
-    printf("========================================\n");
     for (int i = 0; i < n; i++)
     {
         node_t *p = rbtree_find(t, arr[i]);
@@ -420,9 +418,9 @@ int main(void)
     test_init();
     test_insert_single(1024);
     test_find_single(512, 1024);
-    // test_erase_root(128);
-    // test_find_erase_fixed();
-    // test_minmax_suite();
+    test_erase_root(128);
+    test_find_erase_fixed();
+    test_minmax_suite();
     // test_to_array_suite();
     // test_distinct_values();
     // test_duplicate_values();
