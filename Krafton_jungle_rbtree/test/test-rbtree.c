@@ -118,7 +118,6 @@ void test_minmax(key_t *arr, const size_t n)
 
     qsort((void *)arr, n, sizeof(key_t), comp);
     node_t *p = rbtree_min(t);
-    printf("key num ====== %d\n", p->key);
     assert(p != NULL);
     assert(p->key == arr[0]);
 
@@ -421,7 +420,7 @@ int main(void)
     test_erase_root(128);
     test_find_erase_fixed();
     test_minmax_suite();
-    // test_to_array_suite();
+    test_to_array_suite();
     // test_distinct_values();
     // test_duplicate_values();
     // test_multi_instance();

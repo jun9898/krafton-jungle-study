@@ -412,9 +412,26 @@ int rbtree_erase(rbtree *t, node_t *z)
 	return 0;
 }
 
+int inorder_rbtree(const rbtree *t, key_t *arr, node_t *cur_node, int index, const int arr_size) {
+    if (index >= arr_size) {
+        return index; // index 값 반환
+    }
+    if (cur_node == t->nil) {
+        // nil 노드를 만나면 index 값을 반환
+        return index;
+    }
+    index = inorder_rbtree(t, arr, cur_node->left, index, arr_size);
+    // RB트리를 전위순회 하며 얻은 값을 arr에 append하고 포인터 전진
+    arr[index++] = cur_node->key;
+    index = inorder_rbtree(t, arr, cur_node->right, index, arr_size);
+
+    return index; // 최종 index 값을 반환
+}
+
+
 int rbtree_to_array(const rbtree *t, key_t *arr, const size_t n)
 {
-	// TODO: implement to_array
+    inorder_rbtree(t, arr, t->root, 0, n);
 	return 0;
 }
 
