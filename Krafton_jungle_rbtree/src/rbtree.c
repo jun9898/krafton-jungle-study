@@ -63,7 +63,7 @@ void right_rotate(rbtree *T, node_t *cur_node)
 
 rbtree *new_rbtree(void)
 {
-	rbtree *p = (rbtree *)malloc(sizeof(rbtree));
+	rbtree *p = (rbtree *)malloc(sizeof(node_t));
 	if (p == NULL)
 	{
 		perror("Failed to allocate memory for RB tree");
@@ -248,12 +248,19 @@ node_t * greatest_value(node_t *cur_node, node_t *nil)
     node_t *left_node = greatest_value(cur_node->left, nil);
     node_t *right_node = greatest_value(cur_node->right, nil);
 
-    if (cur_node->key >= left_node->key && cur_node->key >= right_node->key)
+    if (left_node == nil && right_node == nil) {
         return cur_node;
-    else if (left_node->key >= cur_node->key && left_node->key >= right_node->key)
-        return left_node;
-    else
-        return right_node;
+    }
+
+    node_t *greatest = cur_node;
+    if (left_node != nil && left_node->key > greatest->key) {
+        greatest = left_node;
+    }
+    if (right_node != nil && right_node->key > greatest->key) {
+        greatest = right_node;
+    }
+
+    return greatest;
 }
 
 node_t *rbtree_min(const rbtree *t)
