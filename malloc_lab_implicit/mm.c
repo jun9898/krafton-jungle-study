@@ -297,16 +297,3 @@ static void place(void* bp, size_t allocated_size) {
         PUT(FTRP(bp), PACK(curr_size, 1));
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
