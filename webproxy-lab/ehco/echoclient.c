@@ -16,8 +16,8 @@ int main(int argc, char **argv) {
     port = argv[2];
 
     // host와 conected된 clientfd
-    clientfd = open_clientfd(host, port);
-    rio_readinitb(&rio, clientfd);
+    clientfd = Open_clientfd(host, port);
+    Rio_readinitb(&rio, clientfd);
 
     while(Fgets(buf, MAXLINE, stdin) != NULL) {
         rio_writen(clientfd, buf, strlen(buf));
