@@ -9,6 +9,7 @@ graph = [[math.inf] * (n+1) for _ in range(n+1)]
 for i in range(n):
     tmp1, tmp2 = map(int, input().split())
     graph[tmp1][tmp2] = 1
+    graph[tmp2][tmp1] = 1
 
 for i in range(1, n+1):
     graph[i][i] = 0
