@@ -60,21 +60,21 @@ void init_pool(int listenfd, pool *p) {
 void add_client(int connfd, pool *p) {
     int i;
     p->nready--;
-    for (i = 0; i < FD_SETSIZE; i++)
+    for (i = 0; i < FD_SETSIZE; i++)  /* Find an available slot */
         if (p->clientfd[i] < 0) {
-            p->clientfd[i] = connfd;
-            Rio_readinitb(&p->clientrio[i], connfd);
+            p->clientfd[i] = connfd;                 //line:conc:echoservers:beginaddclient
+            Rio_readinitb(&p->clientrio[i], connfd); //line:conc:echoservers:endaddclient
 
-            FD_SET(connfd, &p->read_set);
+            FD_SET(connfd, &p->read_set); //line:conc:echoservers:addconnfd
 
-            if (connfd > p->maxfd)
-                p->maxfd = connfd;
-            if (i > p->maxi)
-                p->maxi = i;
+            if (connfd > p->maxfd) //line:conc:echoservers:beginmaxfd
+                p->maxfd = connfd; //line:conc:echoservers:endmaxfd
+            if (i > p->maxi)       //line:conc:echoservers:beginmaxi
+                p->maxi = i;       //line:conc:echoservers:endmaxi
             break;
         }
-    if (i == FD_SETSIZE)
-        app_error("add_client error : Too many clients");
+    if (i == FD_SETSIZE) /* Couldn't find an empty slot */
+        app_error("add_client error: Too many clients");
 }
 
 
