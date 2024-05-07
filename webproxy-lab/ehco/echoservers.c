@@ -27,8 +27,8 @@ int main(int argc, char **argv) {
         fprintf(stderr, "usage : %s <port>\n", argv[0]);
         exit(0);
     }
-    listenfd = Open_listenfd(argv[1]);
-    init_pool(listenfd, &pool);
+    listenfd = Open_listenfd(argv[1]);                                  // 포트 열어주기
+    init_pool(listenfd, &pool);                                         // pool 초기화
 
     while (1) {
         pool.ready_set = pool.read_set;

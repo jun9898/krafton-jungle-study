@@ -14,7 +14,7 @@ void read_requesthdrs(rio_t *rp);
 int parse_uri(char *uri, char *filename, char *cgiargs);
 void serve_static(int fd, char *filename, int filesize, char *method);
 void get_filetype(char *filename, char *filetype);
-void serve_dynamic(int fd, char *filename, char *cgiargs);
+void serve_dynamic(int fd, char *filename, char *cgiargs, char *method);
 void clienterror(int fd, char *cause, char *errnum, char *shortmsg,
                  char *longmsg);
 
@@ -75,14 +75,14 @@ void doit(int fd) {
             clienterror(fd, method, "403", "Forbidden", "Tiny couldn't read the file");
             return;
         }
-        serve_static(fd, filename, sbuf.st_size, method);                                       // 클라이언트에게 정적 컨텐츠 제공
+        serve_static(fd, filename, sbuf.st_size, method);                               // 클라이언트에게 정적 컨텐츠 제공
     }
     else {                                                                              // S_ISREG는 파일이 일반 파일인지 확인한다.
         if (!(S_ISREG(sbuf.st_mode)) || !(S_IXUSR & sbuf.st_mode))  {                   // S_IXUSR은 사용자(Owner)에게 실행 권한이 있는지 확인한다. 
             clienterror(fd, method, "403", "Forbidden", "Tiny couldn't run the CGI program");
             return;
         }
-        serve_dynamic(fd, filename, cgiargs);
+        serve_dynamic(fd, filename, cgiargs, method);
     }
 }
 
@@ -186,7 +186,7 @@ void get_filetype(char *filename, char *filetype) {
 }
 
 
-void serve_dynamic(int fd, char *filename, char *cgiargs) {
+void serve_dynamic(int fd, char *filename, char *cgiargs, char *method) {
     char buf[MAXLINE], *emptylist[] = { NULL };
 
     sprintf(buf, "HTTP/1.0 200 OK\r\n");
@@ -196,11 +196,13 @@ void serve_dynamic(int fd, char *filename, char *cgiargs) {
 
     if (Fork() == 0) {
         setenv("QUERY_STRING", cgiargs, 1);                                                 // QUERY_STRING에 cgiargs에 받아온 값을 집어넣어준다
+        setenv("REQUEST_METHOD", method, 1);
         Dup2(fd, STDOUT_FILENO);                                                            // client fd와 서버의 입출력을 동기화
         Execve(filename, emptylist, environ);                                               // CGI 프로그램 시작
     }
     Wait(NULL);
 }
+
 
 void echo(int connfd) {
     size_t n;
