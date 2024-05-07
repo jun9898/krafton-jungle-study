@@ -11,15 +11,13 @@ static const char *user_agent_hdr ="User-Agent: Mozilla/5.0 (X11; Linux x86_64; 
 void doit(int clientfd);
 void clienterror(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg);
 void parse_uri(char *uri, char *hostname, char *port, char *path);
-void *thread(void *vargp);
 
 
 int main(int argc, char **argv) {
-    int listenfd, *clientfdp;                                                               // 요청을 보내는 클라이언트의 fd를 얻을거임
+    int listenfd, clientfd;                                                               // 요청을 보내는 클라이언트의 fd를 얻을거임
     char hostname[MAXLINE], port[MAXLINE];
     socklen_t clientlen;
     struct sockaddr_storage clientaddr;
-    pthread_t tid;
 
     /* Check command line args */
     if (argc != 2) {
@@ -31,21 +29,12 @@ int main(int argc, char **argv) {
 
     while (1) {
         clientlen = sizeof(clientaddr);
-        clientfdp = Malloc(sizeof(int));
-        *clientfdp = Accept(listenfd, (SA *)&clientaddr, &clientlen); 
+        clientfd = Accept(listenfd, (SA *)&clientaddr, &clientlen); 
         Getnameinfo((SA *)&clientaddr, clientlen, hostname, MAXLINE, port, MAXLINE, 0);
         printf("Accepted connection from (%s, %s)\n", hostname, port);
-        Pthread_create(&tid, NULL, thread, clientfdp);
+        doit(clientfd);   
+        Close(clientfd);  
     }
-}
-
-void *thread(void *vargp) {
-    int clientfd = *((int *) vargp);
-    Pthread_detach(pthread_self());
-    Free(vargp);
-    doit(clientfd);
-    Close(clientfd);
-    return NULL;
 }
 
 
