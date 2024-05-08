@@ -5,17 +5,42 @@
 #define MAX_CACHE_SIZE 1049000
 #define MAX_OBJECT_SIZE 102400
 
-/* You won't lose style points for including this long line in your code */
-static const char *user_agent_hdr ="User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:10.0.3) Gecko/20120305 Firefox/10.0.3\r\n";
+typedef struct node {
+    char *key;              // URI 키
+    unsigned char *value;   // 응답 본문
+    struct node *prev;      // 캐시 내 이전 노드를 가리키는 포인터
+    struct node *next;      // 캐시 내 다음 노드를 가리키는 포인터
+    long size;              // 응답 본문의 크기
+} cache_node;
+
+typedef struct cache {
+    cache_node *root;
+    cache_node *tail;
+    int size;
+} cache;
+
 
 void doit(int clientfd);
-void clienterror(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg);
 void parse_uri(char *uri, char *hostname, char *port, char *path);
+void clienterror(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg);
+void read_requesthdrs(rio_t *rp);
 void *thread(void *vargp);
+void init_cache();
+cache_node *find_cache(cache *c, char *key);
+cache_node *create_node(char *key, char *value, long size);
+void insert_cache(cache *c, char *key, char *value, long size);
+void delete_cache(cache *c, cache_node *node);
 
+
+/* You won't lose style points for including this long line in your code */
+static const char *user_agent_hdr =
+    "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:10.0.3) Gecko/20120305 "
+    "Firefox/10.0.3\r\n";
+
+static cache *my_cache;
 
 int main(int argc, char **argv) {
-    int listenfd, *clientfdp;                                                               // 요청을 보내는 클라이언트의 fd를 얻을거임
+    int listenfd, *clientfd;                                                               // 요청을 보내는 클라이언트의 fd를 얻을거임
     char hostname[MAXLINE], port[MAXLINE];
     socklen_t clientlen;
     struct sockaddr_storage clientaddr;
@@ -27,15 +52,17 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    signal(SIGPIPE, SIG_IGN);
     listenfd = Open_listenfd(argv[1]);                                                    // 프록시 listenfd 열어주기
+    init_cache();
 
     while (1) {
         clientlen = sizeof(clientaddr);
-        clientfdp = Malloc(sizeof(int));
-        *clientfdp = Accept(listenfd, (SA *)&clientaddr, &clientlen); 
-        Getnameinfo((SA *)&clientaddr, clientlen, hostname, MAXLINE, port, MAXLINE, 0);
+        clientfd = Malloc(sizeof(int));
+        *clientfd = Accept(listenfd, (SA * ) &clientaddr, &clientlen); 
+        Getnameinfo((SA *) &clientaddr, clientlen, hostname, MAXLINE, port, MAXLINE, 0);
         printf("Accepted connection from (%s, %s)\n", hostname, port);
-        Pthread_create(&tid, NULL, thread, clientfdp);
+        Pthread_create(&tid, NULL, thread, clientfd);
     }
 }
 
@@ -49,23 +76,96 @@ void *thread(void *vargp) {
 }
 
 
+void init_cache() {
+    my_cache = (cache *) malloc(sizeof(cache));
+    my_cache->root = NULL;
+    my_cache->tail = NULL;
+    my_cache->size = 0;
+}
+
+
+cache_node *create_node(char *key, char *value, long size) {
+    cache_node *new_node = (cache_node *) malloc(sizeof(cache_node));
+    new_node->key = malloc(strlen(key) + 1);
+    strcpy(new_node->key, key);
+    new_node->value = malloc(size);
+    memcpy(new_node->value, value, size);
+    new_node->size = size;
+    new_node->prev = NULL;
+    new_node->next = NULL;
+    return new_node;
+}
+
+
+cache_node *find_cache(cache *c, char *key) {
+    cache_node *current = c->root;
+    while (current != NULL) {
+        if (strcasecmp(current->key, key) == 0) {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+
+void insert_cache(cache *c, char *key, char *value, long size) {
+    while (c->size + size > MAX_CACHE_SIZE) {
+        delete_cache(c, c->tail);
+    }
+    cache_node *new_node = create_node(key, value, size);
+    if (c->root == NULL) {
+        c->root = new_node;
+    } else {
+        new_node->next = c->root;
+        c->root->prev = new_node;
+        c->root = new_node;
+    }
+    c->size += size;
+}
+
+
+void delete_cache(cache *c, cache_node *node) {
+    if (node->prev != NULL) {
+        node->prev->next = node->next;
+    } else {
+        c->root = node->next;
+    }
+    if (node->next != NULL) {
+        node->next->prev = node->prev;
+    } else {
+        c->tail = node->prev;
+    }
+    c->size -= node->size;
+    free(node->key);
+    free(node->value);
+    free(node);
+}
+
+
 void doit(int clientfd) { 
     int serverfd;                                                                       // End server와의 소켓도 연결해야 하기 때문에 fd를 저장할 int 자료형 초기화
     char request_buf[MAXLINE], response_buf[MAX_OBJECT_SIZE];                           // client의 요청과 server의 response를 저장할 버퍼 선언                
-    char path[MAXLINE], method[MAXLINE], uri[MAXLINE];                 
+    char method[MAXLINE], uri[MAXLINE], path[MAXLINE];                 
     char hostname[MAXLINE], port[MAXLINE];                                           
     rio_t request_rio, response_rio;                                                    // request rio, response rio 설정
 
     Rio_readinitb(&request_rio, clientfd);                                              // client의 request를 전달할 rio 세팅
     Rio_readlineb(&request_rio, request_buf, MAXLINE);                                  // 읽어서 buf에 저장할거임
-    printf("Request headers : %s", request_buf);
+    printf("Request header: %s\n", request_buf);
 
     sscanf(request_buf, "%s %s", method, uri);                                          // 나눠서 각각 검사할거임
 
-    if (strcasecmp(method, "GET") && strcasecmp(method, "HEAD")) {                      // GET과 일치하면 0 다르면 1을 리턴함으로 다르면 501 error코드를 발생시킨다
-        clienterror(clientfd, method, "501", "Not implemented", "Tiny does not implement this method");
+    if (!strcasecmp(uri, "/favicon.ico"))
+        return;
+
+    cache_node *cached_node = find_cache(my_cache, uri);
+
+    if (cached_node != NULL) {
+        Rio_writen(clientfd, cached_node->value, cached_node->size);
         return;
     }
+
     parse_uri(uri, hostname, port, path);                                               // uri에서 호스트명, 포트, 경로를 파싱
 
     sprintf(request_buf, "%s /%s %s\r\n", method, path, "HTTP/1.0");                    // 요청 재구성
@@ -79,31 +179,52 @@ void doit(int clientfd) {
     }
 
     serverfd = Open_clientfd(hostname, port);                                           // end server 와의 소켓 연결
-    Rio_writen(serverfd, request_buf, strlen(request_buf));                             // 서버에 요청!
+    if (serverfd < 0) {
+        clienterror(clientfd, hostname, "404", "Not found", "Proxy couldn't connect to the server");
+        return;
+    }
 
-    ssize_t n;
+    rio_writen(serverfd, request_buf, strlen(request_buf));                             // 서버에 요청!
     Rio_readinitb(&response_rio, serverfd);                                             // 서버의 요청을 받을 response_rio 세팅
-    while ((n = Rio_readlineb(&response_rio, response_buf, MAX_OBJECT_SIZE)) > 0) {     // response_rio를 통해 버퍼에 응답 저장
-        Rio_writen(clientfd, response_buf, n);
-        if (!strcmp(response_buf, "\r\n"))                                              // 만약 헤더가 아니면 break
-            break;
+
+    ssize_t response_size = Rio_readnb(&response_rio, response_buf, MAX_OBJECT_SIZE);
+    Rio_writen(clientfd, response_buf, response_size);
+
+    if (strlen(response_buf) < MAX_OBJECT_SIZE) {
+        insert_cache(my_cache, uri, response_buf, response_size);
     }
 
-    while ((n = Rio_readlineb(&response_rio, response_buf, MAX_OBJECT_SIZE)) > 0) {     // response_rio를 통해 버퍼에 응답 저장
-        Rio_writen(clientfd, response_buf, n);                                          // body 나머지 전송
-    }
     Close(serverfd);
 }
 
 
 
+void parse_uri(char *uri, char *hostname, char *port, char *path) {
+    char uri_copy[MAXLINE];
+    strcpy(uri_copy, uri);
+    char *hostname_ptr = strstr(uri_copy, "//") != NULL ? strstr(uri_copy, "//") + 2 : uri_copy + 1;
+    char *port_ptr = strstr(hostname_ptr, ":");
+    char *path_ptr = strstr(hostname_ptr, "/");
+
+    // 경로가 존재한다면
+    if (path_ptr > 0) {
+        *path_ptr = '\0';
+        strcpy(path, path_ptr + 1);
+    }
+    // 포트가 존재한다면
+    if (port_ptr > 0) {
+        *port_ptr = '\0';
+        strcpy(port, port_ptr + 1);
+    }
+    strcpy(hostname, hostname_ptr);
+}
 void clienterror(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg) {
     char buf[MAXLINE], body[MAXBUF];
-    sprintf(body, "<html><title>Tiny Error</title>");
+    sprintf(body, "<html><title>Proxy Error</title>");
     sprintf(body, "%s<body bgcolor=""ffffff"">\r\n", body);
     sprintf(body, "%s%s: %s\r\n", body, errnum, shortmsg);
     sprintf(body, "%s<p>%s: %s\r\n", body, longmsg, cause);
-    sprintf(body, "%s<hr><em>The Tiny Web server</em>\r\n", body);
+    sprintf(body, "%s<hr><em>The Proxy server</em>\r\n", body);
     
     sprintf(buf, "HTTP/1.0 %s %s\r\n", errnum, shortmsg);
     Rio_writen(fd, buf, strlen(buf));
@@ -112,27 +233,6 @@ void clienterror(int fd, char *cause, char *errnum, char *shortmsg, char *longms
     sprintf(buf, "Content-length: %d\r\n\r\n", (int) strlen(body));
     Rio_writen(fd, buf, strlen(buf));
     Rio_writen(fd, body, strlen(body));
-}
-
-
-void parse_uri(char *uri, char *hostname, char *port, char *path) {                         // 호스트명, 포트, 경로로 파싱
-
-    char *hostname_ptr = strstr(uri, "//") != NULL ? strstr(uri, "//") + 2 : uri + 1;       // // 기호가 시작되는 부분 기준 +2를 해야 hostname으로 접근 가능
-    char *port_ptr = strstr(hostname_ptr, ":");                                             // port의 시작부분을 가르키는 포인터   
-    char *path_ptr = strstr(hostname_ptr, "/");                                             // 경로를 가르키는 포인터    
-
-    if (path_ptr > 0) {                                                                     // 경로가 존재한다면
-        *path_ptr = '\0';                                                                   // 문자열 끊어주기
-        strcpy(path, path_ptr+1);                                                           // 경로를 path 버퍼에 복사
-    }
-
-    if (port_ptr > 0) {
-        *port_ptr = '\0'; 
-        strcpy(port, port_ptr + 1); 
-    }
-
-    strcpy(hostname, hostname_ptr);
-    printf("host : %s, port : %s, path : %s\n",hostname, port, path);
 }
 
 
