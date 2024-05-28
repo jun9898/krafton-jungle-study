@@ -40,7 +40,6 @@ def extra(y, x, _sum, count):
             visited.remove((new_y, new_x))
 
 
-
 visited = set()
 for i in range(n):
     for j in range(m):
