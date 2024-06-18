@@ -3,7 +3,7 @@ import heapq
 input = sys.stdin.readline
 
 
-def dfs(start_node):
+def bfs(start_node):
     dist = [float('inf')] * (N + 1)
     dist[start_node] = 0
     q = []
@@ -25,7 +25,7 @@ for i in range(M):
     start, end, weight = map(int, input().split())
     graph[start].append([end, weight])
 
-root_visited = dfs(X)
+root_visited = bfs(X)
 root_visited[0] = 0
 
 for i in range(1, N+1):
