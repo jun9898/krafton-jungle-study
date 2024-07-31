@@ -1,0 +1,22 @@
+dic1 = {}
+dic2 = {}
+answer = []
+for i in range(3):
+    n, m = map(int, input().split())
+    if n not in dic1:
+        dic1[n] = 0
+    dic1[n] += 1
+    if m not in dic2:
+        dic2[m] = 0
+    dic2[m] += 1
+
+for i,j in dic1.items():
+    if j == 1:
+        answer.append(i)
+
+for i,j in dic2.items():
+    if j == 1:
+        answer.append(i)
+
+print(*answer)
+    
