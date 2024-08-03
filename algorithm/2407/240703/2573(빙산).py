@@ -1,60 +1,65 @@
 import sys
 from collections import deque
+
 input = sys.stdin.readline
+dy = [-1, 1, 0, 0]
+dx = [0, 0, -1, 1]
 
+def check(t, y, x):
+    tmp_count = 0
+    for j in range(4):
+        tmp_y, tmp_x = y + dy[j], x + dx[j]
+        if 0 <= tmp_y < N and 0 <= tmp_x < M and graph[tmp_y][tmp_x] == 0:
+            tmp_count += 1
+    new_height = graph[y][x] - tmp_count
+    if new_height <= 0:
+        ice_positions.remove((y, x))
+        return 0
+    return new_height
 
-def bfs(x, y):
-    q = deque([(x, y)])
-    visited[x][y] = 1
-    seaList = []
-
-    while q:
-        x, y = q.popleft()
-        sea = 0
+def bfs(y, x, visited):
+    queue = deque([(y, x)])
+    visited.add((y, x))
+    while queue:
+        cur_y, cur_x = queue.popleft()
         for i in range(4):
-            nx = x + dx[i]
-            ny = y + dy[i]
-            if 0 <= nx < n and 0 <= ny < m:
-                if not graph[nx][ny]:
-                    sea += 1
-                elif graph[nx][ny] and not visited[nx][ny]:
-                    q.append((nx, ny))
-                    visited[nx][ny] = 1
-        if sea > 0:
-            seaList.append((x, y, sea))
-    for x, y, sea in seaList:
-        graph[x][y] = max(0, graph[x][y] - sea)
+            new_y, new_x = cur_y + dy[i], cur_x + dx[i]
+            if 0 <= new_y < N and 0 <= new_x < M and graph[new_y][new_x] > 0 and (new_y, new_x) not in visited:
+                visited.add((new_y, new_x))
+                queue.append((new_y, new_x))
 
-    return 1
+N, M = map(int, input().split())
+graph = [list(map(int, input().split())) for _ in range(N)]
 
+ice_positions = set()
+for i in range(N):
+    for j in range(M):
+        if graph[i][j] > 0:
+            ice_positions.add((i, j))
 
-n, m = map(int, input().split())
-graph = [list(map(int, input().split())) for _ in range(n)]
+time = 0
+while ice_positions:
+    time += 1
+    new_graph = [row[:] for row in graph]
+    for y, x in list(ice_positions):
+        new_graph[y][x] = check(time, y, x)
 
-ice = []
-for i in range(n):
-    for j in range(m):
-        if graph[i][j]:
-            ice.append((i, j))
+    graph = new_graph
 
-dx = [-1, 1, 0, 0]
-dy = [0, 0, -1, 1]
-year = 0
-
-while ice:
-    visited = [[0] * m for _ in range(n)]
-    delList = []
-    group = 0
-    for i, j in ice:
-        if graph[i][j] and not visited[i][j]:
-            group += bfs(i, j)
-        if graph[i][j] == 0:
-            delList.append((i, j))
-    if group > 1:
-        print(year)
+    if len(ice_positions) == 0:
+        print(0)
         break
-    ice = sorted(list(set(ice) - set(delList)))
-    year += 1
 
-if group < 2:
+    count = 0
+    visited = set()
+    for y, x in ice_positions:
+        if (y, x) not in visited:
+            bfs(y, x, visited)
+            count += 1
+
+    if count >= 2:
+        print(time)
+        break
+
+else:
     print(0)
