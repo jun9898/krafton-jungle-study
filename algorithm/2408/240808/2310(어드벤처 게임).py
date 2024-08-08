@@ -1,5 +1,4 @@
 import sys
-from collections import deque
 
 sys.setrecursionlimit(10**6)
 input = sys.stdin.readline
