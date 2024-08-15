@@ -61,12 +61,6 @@ def bfs(queue, key, door):
     return result
 
 
-
-
-
-
-
-
 t = int(input())
 
 for _ in range(t):
