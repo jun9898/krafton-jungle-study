@@ -14,6 +14,3 @@ n, m = map(int, input().split())
 arr = sorted(dict.fromkeys(map(int, input().split())))
 
 back_track([])
-
-
-
